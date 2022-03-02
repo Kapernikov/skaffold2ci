@@ -25,7 +25,7 @@ class PublishChartJob(object):
         piece2 = inspect.cleandoc("""
                 rules:
                     - if: $CI_COMMIT_TAG =~ /^v\d+.\d+.\d+/
-                    when: always
+                      when: always
                     - when: manual
         """)
         return piece1 + h + piece2
