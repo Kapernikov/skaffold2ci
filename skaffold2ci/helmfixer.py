@@ -1,6 +1,7 @@
 from pathlib import PosixPath
 import shutil
 import yaml
+import os
 from .gitinfo import Semver
 class HelmChart(object):
     def __init__(self, basedir: PosixPath):
@@ -11,8 +12,9 @@ class HelmChart(object):
         return HelmChart(targetFolder / self.basedir.name)
 
     def zipUp(self, semver: Semver):
-        shutil.make_archive(str(self.basedir) + "-" + str(semver), 'zip', self.basedir)
+        shutil.make_archive(str(self.basedir) + "-" + str(semver), 'gztar', self.basedir)
         shutil.rmtree(self.basedir)
+        os.rename(str(self.basedir) + "-" + str(semver) + ".tar.gz", str(self.basedir) + "-" + str(semver) + ".tgz")
 
     def fixArtifactOverrides(self, artifactOverrides: list, prefix: str, suffix: str):
         with open(str(self.basedir / "values.yaml")) as f:
