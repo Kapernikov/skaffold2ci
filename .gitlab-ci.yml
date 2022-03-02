@@ -1,0 +1,126 @@
+image: python:>3.7,<4.0
+
+variables:
+  PIP_CACHE_DIR: "${CI_PROJECT_DIR}/.cache/pip"
+  DOCKER_DRIVER: overlay2
+
+stages:
+  - Integrity
+  - Build
+  - Publish
+
+
+# --// Templates ------------------
+
+.install-deps-template: &install-deps
+  before_script:
+    - curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+    - export PATH=$PATH:$HOME/.poetry/bin
+    - poetry config virtualenvs.in-project true
+    - poetry install -vv
+
+.auth-template: &auth
+  before_script:
+    - pip install twine keyring artifacts-keyring
+
+.integrity-template: &integrity
+  <<: *install-deps
+  stage: Integrity
+  cache:
+    key: "$CI_JOB_STAGE"
+    paths:
+      - .cache/pip
+      - .venv
+    policy: pull
+
+
+# --// Integrity Jobs: Quality ------------
+
+install-deps:
+  <<: *install-deps
+  stage: Integrity
+  cache:
+    key: "$CI_JOB_STAGE"
+    paths:
+      - .cache/pip
+      - .venv
+  script:
+    - poetry --version
+    - poetry env info
+
+check-flake8:
+  <<: *integrity
+  script: poetry run flake8 skaffold2ci
+
+check-mypy:
+  <<: *integrity
+  script: poetry run mypy skaffold2ci
+
+check-pylint:
+  <<: *integrity
+  script: poetry run pylint skaffold2ci || scripts/pylint_exit_handler.sh $?
+
+# --// Integrity Jobs: Tests ------------
+
+check-pytest:
+  <<: *integrity
+  script: poetry run pytest -v --junit-xml=report.xml --cov=skaffold2ci --cov-report=term --cov-report xml
+  artifacts:
+    reports:
+      junit: report.xml
+      cobertura: coverage.xml
+
+
+# --// Build Jobs: Documentation ------------
+
+build-package:
+  <<: *install-deps
+  stage: Build
+  artifacts:
+    paths: ['dist']
+  script:
+    - poetry build
+
+build-docs:
+  <<: *install-deps
+  stage: Build
+  cache:
+    key: "$CI_JOB_STAGE"
+    paths:
+      - .cache/pip
+      - .venv
+      - docs/_build/html
+  script:
+    - cd docs
+    - poetry run sphinx-build -b html -d _build/doctrees . _build/html
+  artifacts:
+    paths: ['docs/_build/html']
+
+
+# --// Publish Jobs: Gitlab Pages ------------
+
+pages:
+  stage: Publish
+  needs:
+    - job: build-docs
+      artifacts: true
+  script:
+    - mkdir .public
+    - cp -r docs/_build/html/* .public
+    - mv .public public
+  artifacts:
+    paths:
+      - public
+  only:
+    - master
+
+publish-package:
+  <<: *auth
+  stage: Publish
+  needs:
+    - job: build-package
+      artifacts: true
+  script:
+    - twine upload --repository-url $SERVER_URL -s --skip-existing -u "$SERVER_USERNAME" -p "$SERVER_PASSWORD" dist/*
+  only:
+    - master

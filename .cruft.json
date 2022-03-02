@@ -1,0 +1,22 @@
+{
+  "template": "git@ssh.dev.azure.com:v3/Kapernikov/ci_templates/python-simple-project",
+  "commit": "25cd232",
+  "context": {
+    "cookiecutter": {
+      "full_name": "Frank Dekervel",
+      "email": "frank@kapernikov.com",
+      "project_name": "Skaffold yaml to CI",
+      "project_slug": "skaffold2ci",
+      "project_description": "A tool that creates CI configuration from skaffold.yaml",
+      "project_version": "0.1.0",
+      "python_version": ">3.7,<4.0",
+      "start_port": "9000",
+      "devops_platform": "Gitlab",
+      "jupyter": "no",
+      "_template": "git@ssh.dev.azure.com:v3/Kapernikov/ci_templates/python-simple-project"
+    }
+  },
+  "skip": [
+    ".cruft.json"
+  ]
+}

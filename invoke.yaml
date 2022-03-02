@@ -1,0 +1,8 @@
+ado:
+  organization: ""
+  project: ""
+  repository:
+    name: "Skaffold yaml to CI"
+project_name: "Skaffold yaml to CI"
+project_slug: "skaffold2ci"
+start_port: "9000"

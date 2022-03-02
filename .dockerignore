@@ -1,0 +1,4 @@
+.venv
+_build
+.git/
+.mypy_cache

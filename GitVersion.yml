@@ -1,0 +1,8 @@
+branches:
+  develop:
+    increment: Patch
+  release:
+    mode: ContinuousDeployment
+# ignore:
+# merge-message-formats: {}
+# next-version: 0.1.0

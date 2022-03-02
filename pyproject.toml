@@ -1,0 +1,43 @@
+[tool.black]
+line-length = 88 # Code length, not docstrings
+
+[tool.poetry]
+name = "skaffold2ci"
+version = "0.1.0"
+description = "A tool that creates CI configuration from skaffold.yaml"
+authors = ["Frank Dekervel <frank@kapernikov.com>"]
+readme = "README.md"
+
+
+[tool.poetry.dependencies]
+python = ">3.7,<4"
+
+[tool.poetry.dev-dependencies]
+gitchangelog = "~3.0.4"
+keyring = "*"
+bump2version = "^1.0.1"
+pytest = "^6.2.4"
+Sphinx = "^4.0.2*"
+black = "*"
+flake8 = "^3.9.2"
+pylint = "^2.8.3"
+mypy = "^0.910"
+Pallets-Sphinx-Themes = "^2.0.1*"
+pyinstrument = "^4.0.2"
+sphinxcontrib-napoleon = "^0.7"
+pytest-cov = "^2.12.1"
+invoke = "^1.5.0"
+hypothesis = "^6.14.0"
+myst-parser = "^0.15.1"
+cruft = "^2.9.0"
+
+
+[tool.pytest.ini_options]
+markers = [
+    "success",
+    "error"
+]
+
+[build-system]
+requires = ["poetry>=1.12"]
+build-backend = "poetry.masonry.api"
