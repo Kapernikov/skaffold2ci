@@ -51,6 +51,7 @@ def freezecharts(ctx, input: str, outputdirectory: str, prefix: str, suffix: str
             chart = HelmChart(skaffold.project_path /  release.chartPath())
             chart = chart.copyTo(Path(outputdirectory))
             chart.fixArtifactOverrides(release.artifactOverrides(), prefix, suffix)
+            chart.fixVersion(semver)
             chart.zipUp(semver)
 
 
@@ -67,7 +68,7 @@ def gitlab_upload_frozen_charts(ctx, input: str, outputdirectory: str, gitlab_to
     semver = gitinfo.getSemver(Path(input))
     for release in skaffold.helmReleases():
         if release.chartPath():
-            zipf = os.path.join(outputdirectory,release.chartFolderName() + "-" + str(semver) + ".zip")
+            zipf = os.path.join(outputdirectory,release.chartFolderName() + "-" + str(semver) + ".tgz")
             with open(zipf, "rb") as f:
                 files = {"chart": f}
                 data = {"token": gitlab_token}
@@ -113,7 +114,7 @@ options:
       refactor: Code Refactoring
       docs: Documentation changes
   header:
-    pattern: "^(\\w*)(?:\\(([\\w\\$\\.\\-\\*\\s]*)\\))?\\:\\s(.*)$"
+    pattern: "^(\\\\w*)(?:\\\\(([\\\\w\\\\$\\\\.\\\\-\\\\*\\\\s]*)\\\\))?\\\\:\\\\s(.*)$"
     pattern_maps:
       - Type
       - Scope

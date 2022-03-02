@@ -16,6 +16,13 @@ class HelmChart(object):
         shutil.rmtree(self.basedir)
         os.rename(str(self.basedir) + "-" + str(semver) + ".tar.gz", str(self.basedir) + "-" + str(semver) + ".tgz")
 
+    def fixVersion(self, semver: Semver):
+        with open(str(self.basedir / "Chart.yaml")) as f:
+            y = yaml.load(f, Loader=yaml.FullLoader)
+        y["version"] = semver.getVersion()
+        with open(self.basedir / "Chart.yaml", "w") as f:
+            yaml.dump(y, f)
+
     def fixArtifactOverrides(self, artifactOverrides: list, prefix: str, suffix: str):
         with open(str(self.basedir / "values.yaml")) as f:
             y = yaml.load(f, Loader=yaml.FullLoader)

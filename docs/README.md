@@ -1,7 +1,7 @@
 # Skaffold2CI
 
 Generate a CI pipeline configuration from a skaffold.yaml file. So far, only gitlab is supported.
-
+The generated CI pipeline yaml is readable and can be further tweaked by hand.
 
 ## Gitlab
 

@@ -38,6 +38,12 @@ class Semver(object):
         self.minor = int(self.version.split(".")[1])
         self.patch = int(self.version.split(".")[2])
 
+    def getVersion(self) -> str:
+        ev = self.extraversion
+        if ev != "":
+            ev = "-" + ev
+        return f"{self.major}.{self.minor}.{self.patch}{ev}"
+
     def __repr__(self) -> str:
         ev = self.extraversion
         if ev != "":
