@@ -6,6 +6,7 @@ import os
 from skaffold2ci import gitinfo, gitlabci
 from .helmfixer import HelmChart
 import requests
+from requests.auth import HTTPBasicAuth, HTTPDigestAuth
 
 def get_my_int(number: int) -> int:
     """Function returning the same number it receives"""
@@ -66,7 +67,8 @@ def gitlab_upload_frozen_charts(ctx, input: str, outputdirectory: str, gitlab_to
                 files = {"chart": f}
                 data = {"token": gitlab_token}
                 channel = "stable"
-                r = requests.post(f"{gitlab_url}/projects/{gitlab_project_id}/packages/helm/api/{channel}/charts", files=files, data=data)
+                auth = HTTPDigestAuth("gitlab-ci-token", gitlab_token)
+                r = requests.post(f"{gitlab_url}/projects/{gitlab_project_id}/packages/helm/api/{channel}/charts", files=files, data=data, auth=auth)
                 if (r.status_code < 200 or r.status_code >= 300):
                     print(r.text)
                     print(r.status_code)
