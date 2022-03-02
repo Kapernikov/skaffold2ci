@@ -1,0 +1,1 @@
+from .skaffold2ci import main

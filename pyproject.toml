@@ -6,7 +6,6 @@ name = "skaffold2ci"
 version = "0.1.0"
 description = "A tool that creates CI configuration from skaffold.yaml"
 authors = ["Frank Dekervel <frank@kapernikov.com>"]
-readme = "README.md"
 
 
 [tool.poetry.dependencies]
@@ -41,3 +40,6 @@ markers = [
 [build-system]
 requires = ["poetry>=1.12"]
 build-backend = "poetry.masonry.api"
+
+[tool.poetry.scripts]
+skaffold2ci = 'skaffold2ci:main'
