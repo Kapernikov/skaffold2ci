@@ -72,6 +72,46 @@ def _get_kaniko_template():
                   ${KANIKO_EXTRA}
                 """)
 
+
+class CreateReleasenotesJob(object):
+    def toYaml(self) -> str:
+        return inspect.cleandoc("""
+                releasenotes:
+                    stage: publish_package
+                    image: 
+                        name: quay.io/git-chglog/git-chglog
+                        entrypoint: [""]
+                    rules:
+                        - if: $CI_COMMIT_TAG =~ /^v\d+.\d+.\d+/
+                          when: always
+                        - when: manual
+                    script:
+                        - export CUR_RELEASE=$(git describe --tags --abbrev=0)
+                        - export PREV_RELEASE=$(git describe --tags --abbrev=0 ${CUR_RELEASE}^)
+                        - git-chglog $CUR_RELEASE > relnotes.txt
+                    artifacts:
+                        expire_in: '1 hour'
+                        paths:
+                            - relnotes.txt
+        """)
+
+class CreateGitlabReleaseJob(object):
+    def toYaml(self) -> str:
+        return inspect.cleandoc("""
+                create-gitlab-release:
+                    stage: create_release
+                    image: python:3.7-buster
+                    needs: ["releasenotes"]
+                    rules:
+                        - if: $CI_COMMIT_TAG =~ /^v\d+.\d+.\d+/
+                          when: always
+                        - when: manual
+                    script:
+                        - pip3 install gitlab-release
+                        - gitlab-release --private-token "${GITLAB_CI_TOKEN}" --description "`cat relnotes.txt`" relnotes.txt
+        """)
+
+
 class BuildContainerJob(object):
     def __init__(self, name, context, dockerfile, requires) -> None:
         self.name = name
