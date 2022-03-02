@@ -23,6 +23,7 @@ class PublishChartJob(object):
         """)
         h = "\n" + "\n".join([f"            - /opt/target/{x}.zip" for x in self.helm_chart_names]) + "\n"
         piece2 = inspect.cleandoc("""
+            # rules
                 rules:
                     - if: $CI_COMMIT_TAG =~ /^v\d+.\d+.\d+/
                       when: always
