@@ -2,6 +2,7 @@ import click
 from pathlib import PosixPath, Path
 from .gitlabci import GitlabCi
 from .skaffoldyaml import parse_skaffold_yaml
+import inspect
 import os
 from skaffold2ci import gitinfo, gitlabci
 from .helmfixer import HelmChart
@@ -91,38 +92,13 @@ def gitlab_upload_frozen_charts(ctx, input: str, outputdirectory: str, gitlab_to
 @click.pass_context
 @click.option("--repository-url", required=True, type=str, help="URL of git repo")
 def generate_chglog_config(ctx, repository_url):
-    print(f"""
-style: gitlab
-template: CHANGELOG.tpl.md
-info:
-  title: CHANGELOG
-  repository_url: {repository_url}
-options:
-  commits:
-     filters:
-       Type:
-         - feat
-         - fix
-         - perf
-         - refactor
-         - docs
-  commit_groups:
-    title_maps:
-      feat: Features
-      fix: Bug Fixes
-      perf: Performance Improvements
-      refactor: Code Refactoring
-      docs: Documentation changes
-  header:
-    pattern: "^(\\\\w*)(?:\\\\(([\\\\w\\\\$\\\\.\\\\-\\\\*\\\\s]*)\\\\))?\\\\:\\\\s(.*)$"
-    pattern_maps:
-      - Type
-      - Scope
-      - Subject
-  notes:
-    keywords:
-      - BREAKING CHANGE
-    """)
+    print(gitlabci.template_cghlog_config_yaml(repository_url))
+    
+
+@main.command(help="Generate contents of .chglog/CHANGELOG.tpl.md")
+@click.pass_context
+def generate_changelog_template(ctx):
+    print(gitlabci.template_chglog_template())
 
 if __name__ == "__main__":
     main()

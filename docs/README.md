@@ -28,6 +28,10 @@ cd /path/to/project
 mkdir .chglog
 docker run -it -v $PWD:/opt/source:ro frankdekervel/skaffold2ci \
     skaffold2ci generate-chglog-config --repository-url=https://gitlab.com/our/cool/repo > .chglog/config.yml
+
+docker run -it -v $PWD:/opt/source:ro frankdekervel/skaffold2ci \
+    skaffold2ci generate-changelog-template > .chglog/CHANGELOG.tpl.md
+
 ```
 
 Now, if you re-generate the gitlab CI (see above command), it will detect the configuraiton and emit extra steps, to create a changelog and to create a release automatically whenever you tag a commit with a semver tag.

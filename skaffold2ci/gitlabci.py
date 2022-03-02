@@ -180,3 +180,75 @@ def buildFromSkaffold(s: SkaffoldConfiguration) -> GitlabCi:
     ci = GitlabCi()
     addBuildJobsFromSkaffold(s, ci)
     return ci
+
+
+def template_cghlog_config_yaml(repository_url: str):
+    return inspect.cleandoc(f"""
+        style: gitlab
+        template: CHANGELOG.tpl.md
+        info:
+          title: CHANGELOG
+          repository_url: {repository_url}
+        options:
+          commits:
+             filters:
+               Type:
+                 - feat
+                 - fix
+                 - perf
+                 - refactor
+                 - docs
+          commit_groups:
+            title_maps:
+              feat: Features
+              fix: Bug Fixes
+              perf: Performance Improvements
+              refactor: Code Refactoring
+              docs: Documentation changes
+          header:
+            pattern: "^(\\\\w*)(?:\\\\(([\\\\w\\\\$\\\\.\\\\-\\\\*\\\\s]*)\\\\))?\\\\:\\\\s(.*)$"
+            pattern_maps:
+              - Type
+              - Scope
+              - Subject
+          notes:
+            keywords:
+              - BREAKING CHANGE
+    """)
+
+def template_chglog_template():
+    return inspect.cleandoc("""
+        {{-  range .Versions }}
+        ## {{ if .Tag.Previous }}[{{ .Tag.Name }}]{{ else }}{{ .Tag.Name }}{{ end }} - {{ datetime "2006-01-02" .Tag.Date }}
+
+        {{ range .CommitGroups -}}
+        ### {{ .Title }}
+        {{ range .Commits -}}
+        - {{ if .Scope }}**{{ .Scope }}:** {{ end }}{{ .Subject }}
+        {{ end }}
+        {{ end -}}
+
+        {{- if .RevertCommits -}}
+        ### Reverts
+        {{ range .RevertCommits -}}
+        - {{ .Revert.Header }}
+        {{ end }}
+        {{ end -}}
+
+        {{- if .MergeCommits -}}
+        ### Merge Requests
+        {{ range .MergeCommits -}}
+        - {{ .Header }}
+        {{ end }}
+        {{ end -}}
+
+        {{- if .NoteGroups -}}
+        {{ range .NoteGroups -}}
+        ### {{ .Title }}
+        {{ range .Notes }}
+        {{ .Body }}
+        {{ end }}
+        {{ end -}}
+        {{ end -}}
+        {{ end -}}
+    """)
