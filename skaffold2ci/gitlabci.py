@@ -108,7 +108,7 @@ class CreateGitlabReleaseJob(object):
                         - when: manual
                     script:
                         - pip3 install gitlab-release
-                        - gitlab-release --private-token "${GITLAB_CI_TOKEN}" --description "`cat relnotes.txt`" relnotes.txt
+                        - gitlab-release --private-token "${CREATE_RELEASE_TOKEN}" --description "`cat relnotes.txt`" relnotes.txt
         """)
 
 
