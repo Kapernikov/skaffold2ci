@@ -12,6 +12,7 @@ authors = ["Frank Dekervel <frank@kapernikov.com>"]
 python = ">3.7,<4"
 click = "^8.0.4"
 PyYAML = "^6.0"
+requests = "^2.27.1"
 
 [tool.poetry.dev-dependencies]
 gitchangelog = "~3.0.4"

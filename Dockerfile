@@ -21,6 +21,9 @@ RUN poetry build
 
 FROM python:3.9-slim
 
+RUN apt-get update && apt-get install --no-install-recommends -y git \
+    && rm -rf /var/lib/apt/lists/*
+
 ARG USER="app"
 RUN useradd --create-home --shell /bin/bash $USER
 WORKDIR /home/$USER

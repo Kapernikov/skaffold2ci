@@ -2,11 +2,22 @@ from pathlib import PosixPath
 import pathlib
 import yaml
 from .gitinfo import should_clone_recursive
-
+from typing import List
 class SkaffoldHelmRelease(object):
     def __init__(self, data, project) -> None:
         self.data = data
         self.project = project
+    
+    def chartPath(self):
+        if not "chartPath" in self.data:
+            return None
+        return self.data["chartPath"]
+
+    def chartFolderName(self) -> str:
+        return self.chartPath().split("/")[-1]
+
+    def artifactOverrides(self) -> List:
+        return self.data["artifactOverrides"]
 
 
 class SkaffoldBuildArtifact(object):
@@ -70,7 +81,7 @@ class SkaffoldConfiguration(object):
             return []
         if not "releases" in self.data["deploy"]["helm"]:
             return []
-        return self.data["deploy"]["helm"]["releases"]
+        return [SkaffoldHelmRelease(x,self) for x in self.data["deploy"]["helm"]["releases"]]
 
 def parse_skaffold_yaml(fn: str) -> SkaffoldConfiguration:
     """Parse a skaffold.yaml file and return a SkaffoldConfiguration object"""

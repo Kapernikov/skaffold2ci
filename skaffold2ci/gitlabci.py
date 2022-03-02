@@ -1,6 +1,34 @@
 import yaml
 import inspect
 from .skaffoldyaml import SkaffoldConfiguration
+from typing import List
+
+
+class PublishChartJob(object):
+    def __init__(self, helm_chart_names: List[str]):
+        self.helm_chart_names = helm_chart_names
+
+    def toYaml(self):
+        piece1 =  inspect.cleandoc("""
+            publish-helm-chart:
+                stage: publish_package
+                image: frankdekervel/skaffold2ci:latest
+                script:
+                    - export TG=${CI_COMMIT_TAG}; [[ -z ${TG} ]] && export TG=${CI_COMMIT_SHORT_SHA}
+                    - mkdir -p /opt/target
+                    - cd ${CI_PROJECT_DIR} && skaffold2ci freezecharts --input=skaffold.yaml --outputdirectory=/opt/target --prefix=${CI_REGISTRY_IMAGE}/ --suffix=:${TG}
+                    - cd ${CI_PROJECT_DIR} && skaffold2ci gitlab-upload-frozen-charts --input=skaffold.yaml --outputdirectory=/opt/target
+                artifacts:
+                    paths:
+        """)
+        h = "\n" + "\n".join([f"            - /opt/target/{x}.zip" for x in self.helm_chart_names]) + "\n"
+        piece2 = inspect.cleandoc("""
+                rules:
+                    - if: $CI_COMMIT_TAG =~ /^v\d+.\d+.\d+/
+                    when: always
+                    - when: manual
+        """)
+        return piece1 + h + piece2
 
 def _get_kaniko_template():
     return inspect.cleandoc("""
@@ -84,6 +112,10 @@ class GitlabCi(object):
     def __init__(self) -> None:
         self.stages = ["build_containers", "publish_package", "create_release"]
         self.jobs = []
+
+
+    def addJob(self, j):
+        self.jobs.append(j)
 
     def toYaml(self):
         data = {"stages": self.stages}
