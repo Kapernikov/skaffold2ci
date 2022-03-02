@@ -10,5 +10,6 @@ The following command will generate a gitlab CI yaml file:
 
 ```shell
 cd /path/to/project
-docker run -it -v $PWD:/opt/source:ro frankdekervel/skaffold2ci skaffold2ci generate-gitlabci --input=/opt/source/skaffold.yaml > .gitlab-ci.yaml
+docker run -it -v $PWD:/opt/source:ro frankdekervel/skaffold2ci \
+    skaffold2ci generate-gitlabci --input=/opt/source/skaffold.yaml > .gitlab-ci.yaml
 ```
