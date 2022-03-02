@@ -30,10 +30,14 @@ def generate_gitlabci(ctx, input: str, publish_helm: bool):
     ci = gitlabci.buildFromSkaffold(skaffold)
     if (publish_helm):
         ci.addJob(gitlabci.PublishChartJob([x.chartFolderName() for x in skaffold.helmReleases()]))
+    folder = Path(input).parent / ".chglog"
+    if (folder.exists()):
+        ci.addJob(gitlabci.CreateReleasenotesJob())
+        ci.addJob(gitlabci.CreateGitlabReleaseJob())
     print(ci.toYaml())
 
 
-@main.command()
+@main.command(help="Create zipped charts with the skaffold artifactOverrides applied")
 @click.pass_context
 @click.option("--input", default="skaffold.yaml", type=click.Path(exists=True), help="The skaffold.yaml file to read")
 @click.option("--outputdirectory", required=True, type=click.Path(dir_okay=True, file_okay=False), help="The output directory to write the frozen helm charts")
@@ -50,7 +54,7 @@ def freezecharts(ctx, input: str, outputdirectory: str, prefix: str, suffix: str
             chart.zipUp(semver)
 
 
-@main.command()
+@main.command(help="Upload frozen charts to gitlab")
 @click.pass_context
 @click.option("--input", default="skaffold.yaml", type=click.Path(exists=True), help="The skaffold.yaml file to read")
 @click.option("--outputdirectory", required=True, type=click.Path(dir_okay=True, file_okay=False), help="The output directory that contains the frozen charts")
@@ -82,6 +86,42 @@ def gitlab_upload_frozen_charts(ctx, input: str, outputdirectory: str, gitlab_to
                     raise Exception("Failed to upload chart, both digest and basic auth failed")
 
 
+@main.command(help="Generate contents of .chglog/config.yml")
+@click.pass_context
+@click.option("--repository-url", required=True, type=str, help="URL of git repo")
+def generate_chglog_config(ctx, repository_url):
+    print(f"""
+style: gitlab
+template: CHANGELOG.tpl.md
+info:
+  title: CHANGELOG
+  repository_url: {repository_url}
+options:
+  commits:
+     filters:
+       Type:
+         - feat
+         - fix
+         - perf
+         - refactor
+         - docs
+  commit_groups:
+    title_maps:
+      feat: Features
+      fix: Bug Fixes
+      perf: Performance Improvements
+      refactor: Code Refactoring
+      docs: Documentation changes
+  header:
+    pattern: "^(\\w*)(?:\\(([\\w\\$\\.\\-\\*\\s]*)\\))?\\:\\s(.*)$"
+    pattern_maps:
+      - Type
+      - Scope
+      - Subject
+  notes:
+    keywords:
+      - BREAKING CHANGE
+    """)
 
 if __name__ == "__main__":
     main()
