@@ -37,3 +37,5 @@ docker run -it -v $PWD:/opt/source:ro frankdekervel/skaffold2ci \
 Now, if you re-generate the gitlab CI (see above command), it will detect the configuraiton and emit extra steps, to create a changelog and to create a release automatically whenever you tag a commit with a semver tag.
 Unfortunately, a gitlab release can not be made using the gitlab CI token, neither can it be made using a deploy token. So you will have to create a personal token for this and configure it as a variable under settings->ci_cd.
 You will have to name this variable `CREATE_RELEASE_TOKEN`, and you can **not** mark it as protected, but you need to mark it as masked.
+
+![screenshot](screenshot.png)
