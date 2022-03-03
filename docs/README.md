@@ -10,7 +10,7 @@ The following command will generate a gitlab CI yaml file:
 
 ```shell
 cd /path/to/project
-docker run -it -v $PWD:/opt/source:ro frankdekervel/skaffold2ci \
+docker run --rm -it -v $PWD:/opt/source:ro frankdekervel/skaffold2ci \
     skaffold2ci generate-gitlabci --input=/opt/source/skaffold.yaml > .gitlab-ci.yaml
 ```
 
@@ -26,10 +26,10 @@ To do this, first generate a `git-chglog` configuration:
 ```shell
 cd /path/to/project
 mkdir .chglog
-docker run -it -v $PWD:/opt/source:ro frankdekervel/skaffold2ci \
+docker run --rm -it -v $PWD:/opt/source:ro frankdekervel/skaffold2ci \
     skaffold2ci generate-chglog-config --repository-url=https://gitlab.com/our/cool/repo > .chglog/config.yml
 
-docker run -it -v $PWD:/opt/source:ro frankdekervel/skaffold2ci \
+docker run --rm -it -v $PWD:/opt/source:ro frankdekervel/skaffold2ci \
     skaffold2ci generate-changelog-template > .chglog/CHANGELOG.tpl.md
 
 ```
