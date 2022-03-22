@@ -61,7 +61,6 @@ def _get_kaniko_template():
                 - >-
                   /kaniko/executor
                   --cache=true
-                  --cache-copy-layers=true
                   --cache-ttl=300h
                   --use-new-run
                   --snapshotMode=redo
